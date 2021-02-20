@@ -27,27 +27,27 @@ binormal = zeros(n-2,3)
 ### END HOMEWORK PROBLEM ###
 
 scene1 = Scene()
-scene1 = lines!(x, y, z,
-                linewidth=4, color=:black)
-scene1 = arrows!(topoint3f(xyz[2:end-1,:]), topoint3f(binormal),
-                 linecolor=:red, arrowcolor=:red,
-                 linewidth=2, arrowsize=0.03)
+lines!(scene1, x, y, z,
+       linewidth=4, color=:black)
+arrows!(scene1, topoint3f(xyz[2:end-1,:]), topoint3f(binormal),
+        linecolor=:red, arrowcolor=:red,
+        linewidth=2, arrowsize=0.03)
 
 ## Problem 3.b
 ### WRITE ANY PRE-COMPUTATION CODE HERE ###
 ### END PRE-COMPUTATION ###
 
 scene2 = Scene()
-scene2 = lines!(x, y, z,
-                linewidth=4, color=:black)
-scene2 = arrows!(topoint3f(midpoints),
-                 topoint3f(zeros(n-1, 3)),
-                 linecolor=:red, arrowcolor=:red,
-                 linewidth=2, arrowsize=0.03)
-scene2 = arrows!(topoint3f(midpoints),
-                 topoint3f(zeros(n-1, 3)),
-                 linecolor=:blue, arrowcolor=:blue,
-                 linewidth=2, arrowsize=0.03)
+lines!(scene2, x, y, z,
+       linewidth=4, color=:black)
+arrows!(scene2, topoint3f(midpoints),
+        topoint3f(zeros(n-1, 3)),
+        linecolor=:red, arrowcolor=:red,
+        linewidth=2, arrowsize=0.03)
+arrows!(scene2, topoint3f(midpoints),
+        topoint3f(zeros(n-1, 3)),
+        linecolor=:blue, arrowcolor=:blue,
+        linewidth=2, arrowsize=0.03)
 uplot = scene2[end-1]
 vplot = scene2[end]
 
@@ -81,16 +81,16 @@ m1 = cos.(thetas).*u + sin.(thetas).*v
 m2 = -sin.(thetas).*u + cos.(thetas).*v
 
 scene3 = Scene()
-scene3 = lines!(x, y, z,
-                linewidth=4, color=:black)
-scene3 = arrows!(topoint3f(midpoints),
-                 topoint3f(scale.*m1),
-                 linecolor=:red, arrowcolor=:red,
-                 linewidth=2, arrowsize=0.03)
-scene3 = arrows!(topoint3f(midpoints),
-                 topoint3f(scale.*m2),
-                 linecolor=:blue, arrowcolor=:blue,
-                 linewidth=2, arrowsize=0.03)
+lines!(scene3, x, y, z,
+       linewidth=4, color=:black)
+arrows!(scene3, topoint3f(midpoints),
+        topoint3f(scale.*m1),
+        linecolor=:red, arrowcolor=:red,
+        linewidth=2, arrowsize=0.03)
+arrows!(scene3, topoint3f(midpoints),
+        topoint3f(scale.*m2),
+        linecolor=:blue, arrowcolor=:blue,
+        linewidth=2, arrowsize=0.03)
 m1plot = scene3[end-1]
 m2plot = scene3[end]
 
