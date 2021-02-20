@@ -24,6 +24,11 @@ midpoints = (xyz[1:end-1,:] + xyz[2:end,:]) / 2
 ## Problem 3.a
 binormal = zeros(n-2,3)
 ### YOUR CODE TO COMPUTE BINORMAL HERE
+for i=1:(n-2)
+    t1 = diff[i,:]
+    t2 = diff[i+1,:]
+    binormal[i,:] = 2*cross(t1, t2) ./ (norm(t1) * norm(t2) + dot(t1, t2))
+end
 ### END HOMEWORK PROBLEM ###
 
 scene1 = Scene()
@@ -35,6 +40,19 @@ arrows!(scene1, topoint3f(xyz[2:end-1,:]), topoint3f(binormal),
 
 ## Problem 3.b
 ### WRITE ANY PRE-COMPUTATION CODE HERE ###
+P = zeros(n-2,3,3)
+for i=1:(n-2)
+    t1 = normalize(diff[i,:])
+    t2 = normalize(diff[i+1,:])
+    # c = dot(t1, t2)  # cosine of the convex angle between t1 and t2
+    # s = sqrt(1 - c^2)  # sine of the convex angle between t1 and t2
+    bi = normalize(binormal[i,:])
+    # K = [0 -bi[3] bi[2]; bi[3] 0 -bi[1]; -bi[2] bi[1] 0]
+    # P[i,:,:] = I + s*K + (1-c)*K^2  # Rodrigues' formula
+    A1 = [t1 cross(bi, t1) bi]
+    A2 = [t2 cross(bi, t2) bi]
+    P[i,:,:] = A1 * A2'
+end
 ### END PRE-COMPUTATION ###
 
 scene2 = Scene()
@@ -67,6 +85,8 @@ record(scene2, "bishop.gif", 0:5:360) do angle
         u[frame,:] .= 0
         v[frame,:] .= 0
         ### YOUR CODE TO FILL IN u AND v HERE ###
+        u[frame,:] = P[frame-1,:,:] * u[frame-1,:]
+        v[frame,:] = P[frame-1,:,:] * v[frame-1,:]
         ### END HOMEWORK PROBLEM ###
     end
     uplot[2] = topoint3f(u.*scale)
@@ -98,6 +118,19 @@ nsteps = 200
 grad = zeros(n-1)
 record(scene3, "untwist.gif", 1:nsteps) do i
     ### YOUR CODE HERE TO UPDATE thetas VIA GRADIENT DESCENT ###
+    m = thetas[2:end] - thetas[1:end-1]
+    m = mod2pi.(m .+ pi) .- pi
+    lengths = mapslices(norm, diff, dims=[2])
+    l = lengths[1:end-1] + lengths[2:end]
+    ec = m ./ l
+
+    h = 0.05
+    global grad
+    grad[1] = -2*ec[1]
+    grad[2:end-1] = 2*(ec[1:end-1] - ec[2:end])
+    grad[end] = 2*ec[end]
+    global thetas
+    thetas -= grad .* h
     ### END HOMEWORK PROBLEM ###
     m1 = cos.(thetas).*u + sin.(thetas).*v
     m2 = -sin.(thetas).*u + cos.(thetas).*v
