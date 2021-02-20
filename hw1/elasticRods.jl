@@ -59,6 +59,19 @@ mutable struct CurveData
         
         ### PROBLEM 3(a) - YOUR CODE HERE
         curveData.parallelTransport = fill(one(RotMatrix{3, Float64}), size(verts, 2))
+        for i=1:size(curveData.parallelTransport, 1)
+            t1 = curveData.tangentsR[:,i]
+            t2 = curveData.tangentsL[:,i]
+            # c = dot(t1, t2)  # cosine of the convex angle between t1 and t2
+            # s = sqrt(1 - c^2)  # sine of the convex angle between t1 and t2
+            b = normalize(curveData.curvatureBinormals[:,i])
+            # K = [0 -b[3] b[2]; b[3] 0 -b[1]; -b[2] b[1] 0]
+            # P = I + s*K + (1-c)*K^2  # Rodrigues' formula
+            A1 = [t1 cross(b, t1) b]
+            A2 = [t2 cross(b, t2) b]
+            P = A1 * A2'
+            curveData.parallelTransport[i] = P
+        end
         ### END HOMEWORK PROBLEM
         
         curveData.u0 = zeros(size(verts))
