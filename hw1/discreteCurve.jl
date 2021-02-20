@@ -20,6 +20,10 @@ function problem2cd()
     u = zeros(n - 2)
     v = zeros(n - 2)
     ### YOUR CODE HERE TO COMPUTE GRADIENT ###
+    d = xy[2:end,:] - xy[1:end-1,:]
+    d = mapslices(normalize, d, dims=[2])
+    u = d[1:end-1,1] - d[2:end,1]
+    v = d[1:end-1,2] - d[2:end,2]
     ### END HOMEWORK PROBLEM ###
 
     # Plot curve and gradient vectors
@@ -30,6 +34,7 @@ function problem2cd()
     ## Problem 2(d)
     kappa = zeros(n-2)
     ### YOUR CODE HERE TO COMPUTE KAPPA ###
+    kappa = sqrt.(u.^2 + v.^2)
     ## END HOMEWORK PROBLEM ###
 
     curvcolor = [kappa[1]; kappa; kappa[end]]
@@ -60,8 +65,13 @@ function problem2e()
     display(fig)
     for i = 1:nsteps
         ### YOUR CODE HERE TO PERFORM GRADIENT DESCENT ###
+        h = 0.01
+        d = curve[2:end,:] - curve[1:end-1,:]
+        d = mapslices(normalize, d, dims=[2])
+        dsdx = d[1:end-1,:] - d[2:end,:]
+        curve[2:end-1,:] -= dsdx .* h
         ### END HOMEWORK PROBLEM ###
-        sleep(1/30)
+        sleep(1/300)
         dispcurve[] = Point2f0.(eachrow(curve))
     end
 end
