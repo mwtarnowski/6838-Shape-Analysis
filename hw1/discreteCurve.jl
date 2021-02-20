@@ -17,6 +17,10 @@ n = length(x)
 u = zeros(n - 2)
 v = zeros(n - 2)
 ### YOUR CODE HERE TO COMPUTE GRADIENT ###
+d = xy[2:end,:] - xy[1:end-1,:]
+d = mapslices(normalize, d, dims=[2])
+u = d[1:end-1,1] - d[2:end,1]
+v = d[1:end-1,2] - d[2:end,2]
 ### END HOMEWORK PROBLEM ###
 
 # Plot curve and gradient vectors
@@ -29,8 +33,9 @@ arrows!(scene1, x[2:end-1], y[2:end-1], u, v,
 ## Problem 2.d
 kappa = zeros(n-2)
 ### YOUR CODE HERE TO COMPUTE KAPPA ###
+kappa = sqrt.(u.^2 + v.^2)
 ### END HOMEWORK PROBLEM ###
-c = to_colormap(kappa)
+c = kappa #to_colormap(kappa)
 
 scene2 = Scene(show_axis=false, scale_plot=false)
 lines!(scene2, x, y, linewidth=4, color=c)
@@ -62,6 +67,11 @@ lines!(scene3, curve[:,1], curve[:,2],
 lineplt = scene3[end]
 record(scene3, "straighten.gif", 1:nsteps) do i
     ### YOUR CODE HERE TO PERFORM GRADIENT DESCENT ###
+    h = 0.01
+    d = curve[2:end,:] - curve[1:end-1,:]
+    d = mapslices(normalize, d, dims=[2])
+    dsdx = d[1:end-1,:] - d[2:end,:]
+    curve[2:end-1,:] -= dsdx .* h
     ### END HOMEWORK PROBLEM ###
     lineplt[1] = curve[:,1]
     lineplt[2] = curve[:,2]
