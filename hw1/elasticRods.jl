@@ -140,14 +140,42 @@ end
 
 ### PROBLEM 3(c) Part I - YOUR CODE HERE
 function computeBendForce(curveData)
-    bendForce = zeros(size(curveData.verts));
+    # ref: Discrete Elastic Rods, §7.1
+
+    # a(i,j) = 2 * [e^j]^T . (κb)_i
+    #        = 2 * (κb)_i × e^j
+    aR = 2*multicross(curveData.curvatureBinormals, curveData.edgesR);  # a(i,i-1)
+    aL = 2*multicross(curveData.curvatureBinormals, curveData.edgesL);  # a(i,i)
+
+    # b(i,j) = ((κb)_i . (e^j)^T)^T . (κb)_i
+    #        = ∥(κb)_i∥^2 * e^j
+    bR = curveData.curvatureSquared .* curveData.edgesR;  # b(i,i-1)
+    bL = curveData.curvatureSquared .* curveData.edgesL;  # b(i,i)
+
+    dR = (aR - bR) ./ curveData.curvatureBinormalsDenom;  # (∇_(i-1) (κb)_i)^T . (κb)_i
+    dL = (aL + bL) ./ curveData.curvatureBinormalsDenom;  # (∇_(i+1) (κb)_i)^T . (κb)_i
+
+    eR = dR ./ curveData.dualLengths;
+    eL = dL ./ curveData.dualLengths;
+    eR = -eR + circshift(eR, (0, -1));
+    eL = -eL + circshift(eL, (0,  1));
+
+    bendForce = -2 * (eR + eL);
     return bendForce
 end
 ### END HOMEWORK PROBLEM
 
 ### PROBLEM 3(c) Part II - YOUR CODE HERE
 function computeTwistForce(curveData)
-    twistForce = zeros(size(curveData.verts));
+    # ref: Discrete Elastic Rods, §6, §7.1
+
+    dR = .5 * curveData.curvatureBinormals ./ curveData.edgeLengthsR;  # ∇_(i-1) ψ_i
+    dL = .5 * curveData.curvatureBinormals ./ curveData.edgeLengthsL;  # ∇_(i+1) ψ_i
+
+    eR = -dR + circshift(dR, (0,  1));
+    eL =  dL - circshift(dL, (0, -1));
+
+    twistForce = 2*curveData.totalTwist ./ curveData.totalLength * (eR + eL);
     return twistForce
 end
 ### END HOMEWORK PROBLEM
