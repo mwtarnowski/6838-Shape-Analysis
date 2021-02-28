@@ -42,6 +42,10 @@ arrows!(scene1, topoint3f(xyz[2:end-1,:]), topoint3f(binormal),
 ### WRITE ANY PRE-COMPUTATION CODE HERE ###
 P = zeros(n-2,3,3)
 for i=1:(n-2)
+    if isapprox(norm(binormal[i,:]), 0)
+        P[i,:,:] = Matrix(1.0I, 3, 3)
+        continue
+    end
     t1 = normalize(diff[i,:])
     t2 = normalize(diff[i+1,:])
     # c = dot(t1, t2)  # cosine of the convex angle between t1 and t2
