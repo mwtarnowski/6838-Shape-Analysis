@@ -60,6 +60,9 @@ mutable struct CurveData
         ### PROBLEM 3(a) - YOUR CODE HERE
         curveData.parallelTransport = fill(one(RotMatrix{3, Float64}), size(verts, 2))
         for i=1:size(curveData.parallelTransport, 1)
+            if isapprox(sqrt.(curveData.curvatureSquared[i]), 0)
+                continue
+            end
             t1 = curveData.tangentsR[:,i]
             t2 = curveData.tangentsL[:,i]
             # c = dot(t1, t2)  # cosine of the convex angle between t1 and t2
