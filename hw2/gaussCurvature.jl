@@ -1,7 +1,7 @@
 include("utils.jl")
 
-filename = "meshes/moomoo.off"
-# filename = "meshes/166.off"
+filename = "data/moomoo.off"
+# filename = "data/166.off"
 X, T = readoff(filename)
 nv = size(X, 1)
 nt = size(T, 1)
