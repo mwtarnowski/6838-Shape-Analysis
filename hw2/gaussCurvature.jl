@@ -123,7 +123,113 @@ function gaussianCurvature2(X, T)
     end
     return curvature
 end
+
+# S.Rusinkiewicz,
+# Estimating Curvatures and Their Derivatives on Triangle Meshes.
+function gaussianCurvature3(X, T)
+    normal = vertexNormal(X, T)
+
+    cots = zeros(nt, 3)
+    edge = zeros(nv, 3)
+    for i=1:nt
+        v1,v2,v3 = T[i,:]
+        e12 = X[v2,:] - X[v1,:]
+        e23 = X[v3,:] - X[v2,:]
+        e31 = X[v1,:] - X[v3,:]
+        cots[i,1] = -dot(e12, e31) / norm(cross(e12, e31))
+        cots[i,2] = -dot(e23, e12) / norm(cross(e23, e12))
+        cots[i,3] = -dot(e31, e23) / norm(cross(e31, e23))
+        edge[v1,:] = e12
+        edge[v2,:] = e23
+        edge[v3,:] = e31
+    end
+
+    frame = zeros(nv, 2, 3)
+    for i=1:nv
+        n = normal[i,:]
+        P = I - n*n'
+        u = normalize(P * edge[i,:])
+        v = cross(n, u)
+        frame[i,1,:] = u
+        frame[i,2,:] = v
+    end
+
+    II = zeros(nv, 2, 2)
+    ws = zeros(nv)
+    for i = 1:nt
+        v1,v2,v3 = T[i,:]
+        e12 = X[v2,:] - X[v1,:]
+        e23 = X[v3,:] - X[v2,:]
+        e31 = X[v1,:] - X[v3,:]
+        n1 = normal[v1,:]
+        n2 = normal[v2,:]
+        n3 = normal[v3,:]
+        es = [e12 e23 e31]
+        ns = [n2-n1 n3-n2 n1-n3]
+        nf = normalize(cross(e31, e12))
+        uf = normalize(e12)
+        vf = cross(nf, uf)
+        Mf = [uf vf]'
+        IIf = (Mf * ns) / (Mf * es)
+        # vertex 1
+        Mp = frame[v1,:,:]
+        if 1 - dot(n1, nf) > 1e-7
+            b = normalize(cross(n1, nf))
+            MA = [n1 cross(b, n1) b]
+            MB = [nf cross(b, nf) b]
+            R = MB * MA'
+            up = R * Mp[1,:]
+            vp = R * Mp[2,:]
+            Mp = [up vp]'
+        end
+        M = Mp * Mf'
+        IIp = M * IIf * M'
+        wp = (dot(e12, e12) * cots[i,2] + dot(e31, e31) * cots[i,3]) / 8
+        II[v1,:,:] += IIp * wp
+        ws[v1] += wp
+        # vertex 2
+        Mp = frame[v2,:,:]
+        if 1 - dot(n2, nf) > 1e-7
+            b = normalize(cross(n2, nf))
+            MA = [n2 cross(b, n2) b]
+            MB = [nf cross(b, nf) b]
+            R = MB * MA'
+            up = R * Mp[1,:]
+            vp = R * Mp[2,:]
+            Mp = [up vp]'
+        end
+        M = Mp * Mf'
+        IIp = M * IIf * M'
+        wp = (dot(e23, e23) * cots[i,3] + dot(e12, e12) * cots[i,1]) / 8
+        II[v2,:,:] += IIp * wp
+        ws[v2] += wp
+        # vertex 3
+        Mp = frame[v3,:,:]
+        if 1 - dot(n3, nf) > 1e-7
+            b = normalize(cross(n3, nf))
+            MA = [n3 cross(b, n3) b]
+            MB = [nf cross(b, nf) b]
+            R = MB * MA'
+            up = R * Mp[1,:]
+            vp = R * Mp[2,:]
+            Mp = [up vp]'
+        end
+        M = Mp * Mf'
+        IIp = M * IIf * M'
+        wp = (dot(e31, e31) * cots[i,1] + dot(e23, e23) * cots[i,2]) / 8
+        II[v3,:,:] += IIp * wp
+        ws[v3] += wp
+    end
+    II = II ./ ws
+
+    curvature = zeros(nv)
+    for i=1:nv
+        curvature[i] = det(II[i,:,:])
+    end
+    return curvature
+end
 # END HOMEWORK PROBLEM ######
 
 scene1 = showdescriptor(X, T, gaussianCurvature1(X, T))
 scene2 = showdescriptor(X, T, gaussianCurvature2(X, T))
+scene3 = showdescriptor(X, T, gaussianCurvature3(X, T))
