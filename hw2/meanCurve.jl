@@ -44,15 +44,13 @@ function cotLaplacian(X, T)
     end
 
     I = [T[:,1]; T[:,2]; T[:,3]]
-    V = [cots[:,2]+cots[:,3]; cots[:,3]+cots[:,1]; cots[:,1]+cots[:,2]]
-    Ldiag = sparse(I, I, V, nv, nv)
-
-    I = [T[:,1]; T[:,2]; T[:,3]]
     J = [T[:,2]; T[:,3]; T[:,1]]
     V = [-cots[:,3]; -cots[:,1]; -cots[:,2]]
-    Ltri = sparse(I, J, V, nv, nv)
+    L = sparse(I, J, V, nv, nv)
+    L = L + L'
 
-    L = Ldiag + Ltri + Ltri'
+    Vdiag = vec(sum(L, dims=2))
+    L = L - spdiagm(0 => Vdiag)
     return L
 end
 # END HOMEWORK ASSIGNMENT #######
