@@ -4,8 +4,8 @@ using SparseArrays
 
 include("utils.jl")
 
-filename = "meshes/moomoo.off"
-# filename = "meshes/166.off"
+filename = "data/moomoo.off"
+# filename = "data/166.off"
 X, T = readoff(filename)
 nv = size(X, 1)
 nt = size(T, 1)
@@ -68,7 +68,7 @@ function curvatureFlowEuler(X, T)
     # END HOMEWORK ASSIGNMENT #####
     H = meanCurvature(Xt, T)
     # Uncomment to show mean curvature at the end
-    # scene = showdescriptor(X, T, H)
+    # scene = showdescriptor(Xt, T, H)
 end
 
 function curvatureFlowImplicit(X, T)
@@ -81,7 +81,7 @@ function curvatureFlowImplicit(X, T)
     # END HOMEWORK ASSIGNMENT
     H = meanCurvature(Xt, T)
     # Uncomment to show mean curvature at the end
-    # scene = showdescriptor(X, T)
+    # scene = showdescriptor(Xt, T, H)
 end
 
 # Uncomment either the implicit or explicit flow to see your results
