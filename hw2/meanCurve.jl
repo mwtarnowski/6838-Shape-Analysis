@@ -107,8 +107,24 @@ function meanCurvature(X, T)
     L = cotLaplacian(X, T)
     M = barycentricArea(X, T)
     Hn = 0.5 * (L * X) ./ M
-    H = mapslices(norm, Hn, dims=[2])  # unsigned mean curvature
-    H = vec(H)
+
+    normal = zeros(nv, 3)
+    for i=1:nt
+        v1,v2,v3 = T[i,:]
+        e12 = X[v2,:] - X[v1,:]
+        e23 = X[v3,:] - X[v2,:]
+        e31 = X[v1,:] - X[v3,:]
+        n = cross(e12, e23)  # weighted by the triangle area
+        normal[v1,:] += n
+        normal[v2,:] += n
+        normal[v3,:] += n
+    end
+    normal = mapslices(normalize, normal, dims=[2])
+
+    H = zeros(nv)
+    for i=1:nv
+        H[i] = dot(Hn[i,:], normal[i,:])
+    end
     return H
 end
 # END HOMEWORK ASSIGNMENT #######
