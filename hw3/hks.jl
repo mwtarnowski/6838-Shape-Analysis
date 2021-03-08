@@ -2,7 +2,7 @@ using Makie
 
 include("utils.jl")
 
-filename = "../human_coarse.off"
+filename = "data/human_coarse.off"
 X, T = readoff(filename)
 nv = size(X, 1)
 nt = size(T, 1)
@@ -42,12 +42,12 @@ knee1, knee2 = 232, 257
 
 x = range(1, stop=nSamples, length=nSamples)
 
-trace0 = scatter(x, hks[hand1,:], markersize=5)
-trace1 = scatter(x, hks[hand2,:], markersize=5)
-trace2 = scatter(x, hks[knee1,:], markersize=5)
-trace3 = scatter(x, hks[knee2,:], markersize=5)
-
-scene2 = hbox(vbox(trace0, trace1), vbox(trace2, trace3))
+fig = Figure()
+trace0 = scatter(fig[1,1], x, hks[hand1,:], markersize=5)
+trace1 = scatter(fig[1,2], x, hks[hand2,:], markersize=5)
+trace2 = scatter(fig[2,1], x, hks[knee1,:], markersize=5)
+trace3 = scatter(fig[2,2], x, hks[knee2,:], markersize=5)
+fig
 
 ### COMPUTE DIFFERENCE FUNCTION |HKS(x0) - HKS(x)|_2 HERE ###
 result = rand(nv)
