@@ -1,3 +1,4 @@
+using Arpack
 using Makie
 
 include("utils.jl")
@@ -9,7 +10,13 @@ nt = size(T, 1)
 
 ### ADD CODE TO COMPUTE THE SPECTRUM OF THE LAPLACIAN HERE ###
 function laplacianSpectrum(X, T, k)
-    return zeros(size(X,1)), rand(size(X,1), k)
+    L = cotLaplacian(X, T)
+    vals, vecs = eigs(L, nev=k, which=:SM)
+    M = massMatrix(X, T)
+    # norm_int = sqrt.(vecs' * M * vecs)
+    norm_int = sqrt.(diag(M)' * (vecs.^2))
+    vecs = vecs ./ norm_int
+    return vals, vecs
 end
 ### END HOMEWORK ASSIGNMENT ###
 
@@ -23,9 +30,9 @@ function HKS(eigenvalues, eigenvectors, nSamples)
     neig = size(eigenvalues, 1)
     tmin = 4*log(10)/eigenvalues[neig]
     tmax = 4*log(10)/eigenvalues[2]
-    t = exp10.(range(tmin, stop=tmax, length=nSamples))
+    t = exp10.(range(log10(tmin), stop=log10(tmax), length=nSamples))
 
-    hks = rand(size(eigenvectors, 1), nSamples)
+    hks = (eigenvectors.^2) * exp.(-eigenvalues * t')
 
     return hks
 end
