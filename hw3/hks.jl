@@ -44,8 +44,10 @@ k = 300
 vals, vecs = laplacianSpectrum(X, T, k)
 hks = HKS(vals, vecs, nSamples)
 
-hand1, hand2 = 259, 135
-knee1, knee2 = 232, 257
+# hand1, hand2 = 259, 135
+# knee1, knee2 = 232, 257
+hand1, hand2 = 420, 460
+knee1, knee2 = 225, 226
 
 x = range(1, stop=nSamples, length=nSamples)
 
@@ -57,6 +59,8 @@ trace3 = scatter(fig[2,2], x, hks[knee2,:], markersize=5)
 fig
 
 ### COMPUTE DIFFERENCE FUNCTION |HKS(x0) - HKS(x)|_2 HERE ###
-result = rand(nv)
+diffs = hks .- hks[hand2,:]'
+result = mapslices(norm, diffs, dims=[2])
+result = vec(result)
 ### END HOMEWORK ASSIGNMENT ###
 scene3 = showdescriptor(X, T, result)
