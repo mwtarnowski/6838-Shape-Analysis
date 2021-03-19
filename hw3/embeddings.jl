@@ -19,16 +19,14 @@ n = size(X, 1)
 
 function SMACOF(D0, n_iter=100)
     C = I - ones(n, n) ./ n
+    B = zeros(n, n)
     Xk = rand(n, 2)
     for k = 1:n_iter
-        B = zeros(n, n)
+        fill!(B, 0.)
         for i=1:n
-            for j=1:n
-                dk = norm(Xk[i,:] - Xk[j,:])
-                if !isapprox(dk, 0)
-                    B[i,j] = -D0[i,j] / dk
-                end
-            end
+            Dki = [norm(Xk[i,:] - Xk[j,:]) for j=1:n]
+            nz = .!isapprox.(Dki, 0)
+            B[i,nz] = -D0[i,nz] ./ Dki[nz]
             B[i,i] = -sum(B[i,:])
         end
         Xk[:,:] = C * B * Xk ./ (2*n)
