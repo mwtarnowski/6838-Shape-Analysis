@@ -15,6 +15,27 @@ scene = scatter(X[:,1], X[:,2], X[:,3], color=X[:,3], markersize=0.3)
 #### ADD CODE FOR YOUR TWO METHODS HERE ####
 n = size(X, 1)
 
+# D0 = [norm(X[i,:] - X[j,:]) for i=1:n, j=1:n]
+
+function SMACOF(D0, n_iter=100)
+    C = I - ones(n, n) ./ n
+    Xk = rand(n, 2)
+    for k = 1:n_iter
+        B = zeros(n, n)
+        for i=1:n
+            for j=1:n
+                dk = norm(Xk[i,:] - Xk[j,:])
+                if !isapprox(dk, 0)
+                    B[i,j] = -D0[i,j] / dk
+                end
+            end
+            B[i,i] = -sum(B[i,:])
+        end
+        Xk[:,:] = C * B * Xk ./ (2*n)
+    end
+    return Xk
+end
+
 function MDS(D)
     D2 = D .* D
     C = I - ones(n,n) ./ n
